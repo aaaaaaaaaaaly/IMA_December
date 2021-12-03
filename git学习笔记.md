@@ -1,8 +1,10 @@
 # git学习笔记
 
-# 12月2
+# 12月3
 
 ## Git 基本概念
+
+![](https://z3.ax1x.com/2021/12/03/odQ0HK.png)
 
 ###### 工作流程
 
@@ -15,14 +17,14 @@
 
 简单说，就是可以copy出副本进行修改，还可以回溯的操作。
 
-###### **基本概念**
+###### **基本概念及原理**
 
 - **工作区**（workplace）：在电脑看到的目录
 - **暂存区**（staging area）：（ 存放在 .git 目录下的）index文件
 - **版本库**（local repository）：工作区有一个隐藏目录 .git ，这个不算工作区，而是git的版本。
 - **远程仓库**（remote repository）
 
- （写代码）工作区--**git add**-->(临时)暂存区--**git commit**-->(历史)版本库
+ **原理**：（写代码）工作区--**git add**-->(临时)暂存区--**git commit**-->(历史)版本库
 
 ------
 
@@ -67,9 +69,7 @@ $
 
 ------
 
-
-
-###### git status
+###### **git status**
 
 查看上次提交之后是否对文件进行再次修改
 
@@ -85,8 +85,6 @@ A gello.php
 
 ------
 
-
-
 ###### git diff
 
 **比较**文件在暂存区和工作区的差异，**显示**写入暂存区和已经被修改但是未写入存储去文件的区别
@@ -100,11 +98,95 @@ A gello.php
 
 ------
 
+###### git log
 
+```
+//查看历史提交记录
+git log 
+
+//用 --oneline 选项来查看历史记录的简洁的版本
+git log --online
+
+//查看历史中什么时候出现了分支、合并 git log --graph
+//逆向显示所有日志 git log --reverse
+//查找指定用户的提交日志 git log --author=user--online
+//要指定日期，--since 和 --before，也可用 --until 和 --after
+
+git log --online --before={3.week.ago} --after={2010-04-18}--no merges
+```
+
+------
+
+###### git blame
+
+```
+//以列表形式显示修改记录，
+git blame <file>
+```
+
+------
+
+###### git remote
+
+```
+git clone url//远程仓库的地址   载入
+git remote -v//显示所有远程仓库的信息
+git remote show url//显示某个远程仓库的信息
+git remote add [shortname] [url]//shortname 为本地的版本库
+git remote rm name //删除远程仓库
+git remote rename olename newname//修改仓库名
+```
+
+------
+
+###### git fetch
+
+```
+//远端仓库提取数据并尝试合并到当前分支
+git meige
+
+//first,配置好了一个远程仓库，并且你想要提取更新的数据，你可以首先执行
+git fetch [alias]//以上命令告诉 Git 去获取它有你没有的数据，然后你可以执行
+git merge [alias]//然后在本地更新修改
+git fetch origin
+
+```
+
+------
 
 ###### **git pull**
 
+用于从远程获取代码并合并本地的版本
+
+```
+git pull 
+git pull origin
+
+//把远程主机origin的A分支拉过来和本地B的分支合并
+git pull origin A:B
+//如果是和当前的分支合并
+git pull origin A
+```
+
+------
+
 ###### **git push**
+
+本地的分支版本上传到远程并合并
+
+```
+git push <远程主机名> <本地分支名>:<远程分支名>
+//如果本地分支名与远程分支名相同，则可以省略冒号:
+git push <远程主机名> <本地分支名>
+
+//本地版本与远程版本有差异，但又要强制推送可以使用 --force 参数
+git push --force origin master
+
+//删除主机的分支可以使用 --delete 参数,以下命令表示删除 origin 主机的 master 分支
+git push origin --delete master
+```
+
+------
 
 ###### **git commit**  
 
@@ -144,8 +226,6 @@ $ git commit -am '修改 hello.php 文件'
 （即省略了，add创建，commit提交，直接使用 commit -a实现缓存->提交
 
 ------
-
-
 
 ###### **git reset**  
 
@@ -203,6 +283,32 @@ $ git reset --hard origin/master    # 将本地的状态回退到和远程的一
 
 （暂存区删除文件）
 
+```
+//将文件从暂存区和工作区中删除
+git rm <file>  
+
+//如果删除之前修改过并且已经放到暂存区域的话，则必须要用强制删除选项 -f
+git rm -f <file>
+
+//文件从暂存区域移除，但仍然希望保留在当前工作目录中
+git rm --cashed<file>
+
+```
+
+------
+
+###### git mv
+
+```
+//用于移动或重命名一个文件、目录或软连接
+git mv <file><newfile>
+
+//要重命名它，可以使用 -f 参数
+git mv -f <file> <newfile>
+```
+
+------
+
 ###### **git checkout**.   
 
 （🔺暂存区全部指定文件替换工作区文件）
@@ -238,8 +344,6 @@ git clone [url]
 
 ------
 
-
-
 ###### **git config**
 
  (配置命令,在开始前需要先设置提交的用户信息)
@@ -262,8 +366,6 @@ $ git config --global user.email email@.com
 ```
 
 ------
-
-
 
 ###### **git init** 
 
@@ -292,17 +394,56 @@ Tnitialized empty Git repository in /users/../new/.git
 
 ------
 
-
-
 ###### ✨vim 
 
 打开，修改，保存文件
 
+**一，两种模式： 命令，编辑**
 
+**命令**
+
+接受，执行vim操作命令时的模式，打开文件后的默认模式
+
+**编辑**
+
+按下 **Esc**键，回退命令模式，在命令模式下按 **i**，进入编辑模式
+
+**二，创建，打开文件**
+
+```
+touch filename //创建文件  （git mkdir）
+vim 文件路径 //打开文件 ，存在则打开，不存在则新建文件
+```
+
+**三，保存文件**
+
+在编辑模式下编辑文件（**i**）
+
+按（**Esc**）进入命令模式，在命令模式下键入 **“zz"** 或者 **”wq“**，保存并且退出
+
+如果只是想保存文件 ，**“：w“**
+
+**四，放弃文件修改**
+
+按 “**Esc**”-->"**:q!**"-->"**Enter**"-->退出 vim
+
+如果是放弃所有文件修改但是不退出：
+
+**vi**(回退到文件夹最后一次保存的状态)  --->   **Esc**  --->  "**:e!**"  ---->  **Enter**
+
+**五，查看文件内容**
+
+```
+cat 文件名 //git bash窗口实现
+```
+
+**六，创建文件夹**
+
+```
+touch 文件夹//git bash窗口实现
+```
 
 - ------
-
-
 
 ## 流程
 
@@ -324,4 +465,83 @@ Tnitialized empty Git repository in /users/../new/.git
 | git reset  | 回退版本                               |
 | git rm     | 删除工作区文件                         |
 | git mv     | 移动或重命名工作区文件                 |
+
+### 提交日志
+
+| 命令             | 说明                                   |
+| :--------------- | -------------------------------------- |
+| git log          | 查看历史提交记录                       |
+| git blame <file> | 以列表的形式查看指定文件的历史修改记录 |
+
+### 远程操作
+
+| 命令       | 说明                 |
+| ---------- | -------------------- |
+| git remote | 远程仓库操作         |
+| git fetch  | 远程获取代码库       |
+| git pull   | 下载远程代码库       |
+| git push   | 上传远程代码并且合并 |
+
+## Git分支模型
+
+###### 创建分支命令
+
+```
+git branch (branchname)
+```
+
+###### 切换分支命令
+
+```
+git checkout (branchout)
+//Git会用最后提交的快照替换 （commit）替换工作目录的内容
+```
+
+###### 合并分支命令
+
+```
+git merge
+```
+
+![](https://z3.ax1x.com/2021/12/03/odCiwt.png)
+
+###### 列出分支命令
+
+```
+git branch
+//没有参数，git branch 会列出在本地的分支
+```
+
+###### 创建分支
+
+```
+//默认情况下，执行git init，系统默认创建一个 master分支
+//如果要手动创建 
+git branch (branchname)
+```
+
+###### 删除分支
+
+```
+git branch -d(branch)
+```
+
+###### 合并冲突
+
+合并并不仅仅是简单的文件添加、移除的操作，Git 也会合并修改
+
+**基本概念**： Git用<<<<<<<，=======，>>>>>>>标记出不同分支的内容
+
+原因：某个文件的内容都被修改和提交
+
+解决：手动修改
+
+```
+git status  //告诉我们冲突的文件
+//修改
+使用 vim cat等命令
+
+//要用 git add告诉Git文件冲突已经解决
+//然后 git commit
+```
 

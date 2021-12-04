@@ -28,6 +28,33 @@
 
 ------
 
+###### 创建一个空目录
+
+```
+$ mkdir 目录名
+$ cd 该目录名字   //cd是进入某个文件夹的命令
+$ pwd           //pwd用于显示当前目录的路径
+$ git init      //把该目录变成git可以管理的仓库
+```
+
+###### 把创建的文件放到git仓库
+
+```
+//假设你已经拥有一个文本文件.txt，那就需要先把它放到-->托管在git的目录文件夹下，才能通过got命令成功上传git仓库
+//第一步：
+git add readme.txt
+//第二步
+git commit -m"备注信息"
+
+//可以一次包含多个文件提交，在add后面直接放文件名，commit一次上交
+```
+
+## 细节补充
+
+```
+除 git init外，git命令必须在git仓库目录里面执行
+```
+
 
 
 ## **操作命令**
@@ -48,6 +75,7 @@ git add.
 ```
 
 ```
+
 $ touch README  #创建文件
 $ touch hello.php #创建文件
 $ ls //list directory contents 用来显示目录或具体文件列表
@@ -71,7 +99,7 @@ $
 
 ###### **git status**
 
-查看上次提交之后是否对文件进行再次修改
+查看上次提交之后是否对文件进行再次修改，可以帮助我们了解当前仓库的状态，一般要和  **git diff**  配合使用，查看具体的修改
 
 ```
 $ git status
@@ -100,12 +128,16 @@ A gello.php
 
 ###### git log
 
+可以查看系统的历史记录，配合commit时的**-m“ ”**信息
+
 ```
 //查看历史提交记录
 git log 
 
 //用 --oneline 选项来查看历史记录的简洁的版本
 git log --online
+
+//也可以在后面添加 --pretty==online来简化信息
 
 //查看历史中什么时候出现了分支、合并 git log --graph
 //逆向显示所有日志 git log --reverse
@@ -190,7 +222,7 @@ git push origin --delete master
 
 ###### **git commit**  
 
- 从现有的git仓库（暂存区）拷贝到项目（本地仓库）
+ **（快照）**从现有的git仓库（暂存区）拷贝到项目（本地仓库）
 
 ```
 git commit -m[message]
@@ -229,7 +261,7 @@ $ git commit -am '修改 hello.php 文件'
 
 ###### **git reset**  
 
-(重写操作)
+(退回之前的版本)
 
 ```
 //语法格式
@@ -238,9 +270,16 @@ git reset [--soft | --mixed | --hard] [HEAD]
 --mixed 为默认,重置暂存区的文件与上一次的提交(commit)保持一致，工作区文件内容保持不变。可以省略
 //比如
 $ git reset HEAD^            # 回退所有内容到上一个版本  
-$ git reset HEAD^ hello.php  # 回退 hello.php 文件的版本到上一个版本  
+$ git reset HEAD^ hello.php  # 回退 hello.php 的文件版本到上一个版本  
 $ git  reset  052e           # 回退到指定版本
 
+//因为回退会将现在的信息抹掉，如果又希望回到现在的版本，就需要查找命令窗口的历史信息（只要你没关闭）
+找到 commit id
+然后 $ git reset --hard commit id
+//版本不需要全写，前几位就行
+
+//找不到 commit id怎么办？
+git reflog记录了每一次的命令，所以可以使用 git reflog来查找id
 ```
 
 ```
@@ -393,6 +432,16 @@ Tnitialized empty Git repository in /users/../new/.git
 .git 默认是隐藏的，可以使用 **ls-a** 命令查看
 
 ------
+
+###### cat
+
+```
+cat file //把文件内容打印显示
+
+cat file1 file2> target_file //把多个文件合并到目标文件
+
+cat file1 file2>> target_file //把多个文件附加到目标文件
+```
 
 ###### ✨vim 
 

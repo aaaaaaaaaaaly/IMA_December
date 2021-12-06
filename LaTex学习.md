@@ -371,7 +371,7 @@ $$
 
 需要对齐的公式可以使用`align`环境，他们都带有**编号**如果**不需要编号**可以使用带星花的版本
 
-（？这里没显示编号）
+（？这里没显示编号💧）
 $$
 \begin{gather}
 a = b+c+d \\
@@ -388,18 +388,131 @@ $$
 
 ##### 分段函数
 
-使用  `cases`  环境环境来实现，它必须包含在数学环境之内
+使用  `cases`  环境来实现，它必须包含在数学环境之内
 $$
 y= \begin{cases}
--x,\quad x\leq 0 \\
-x,\quad x>0
+-x,\quad x< 0 \\
+x,\quad x>0\\
+0,\quad x=0
 \end{cases}
 $$
 **\leq** 表示 <= 符号
 
-### 辅助工具
+#### 插入图片和表格
 
+##### 图片
 
+推荐使用 `usepackage{graphicx}`宏包提供的`\includegraphics`
+
+```
+\includegraphics[width=.8\textwidth]{a.jpg}
+```
+
+这样图片的宽度会被缩放到页面宽度的80%,
+
+##### 表格
+
+`tabular`环境提供简单的表格功能
+
+`hline`命令表示横线
+
+`|`命令表示竖线
+
+`&`表示分列
+
+`\\`表示换行
+
+`l`,`c`,`r`分别表示每一列的居左，居中，居右
+
+```
+\begin{tabular}{|l|c|r|}   ................>环境配置，列数设置
+ \hline                    ................>第一行，&用来分列
+操作系统& 发行版& 编辑器\\
+ \hline
+Windows & MikTeX & TexMakerX \\
+ \hline
+Unix/Linux & teTeX & Kile \\
+ \hline
+Mac OS & MacTeX & TeXShop \\
+ \hline
+通用& TeX Live & TeXworks \\
+ \hline
+\end{tabular}
+```
+
+##### 浮动体
+
+插图和表格通常需要占据很大的空间，经常需要调整他们的位置。
+
+`figure`和`table`可以自动完成这样的任务，这种自动调整位置的环境称作 **float**
+
+>```
+>\begin{figure}[htbp]
+>\centering
+>\includegraphics{a.jpg}
+>\caption{有图有真相}
+>\label{fig:myphoto}
+>\end{figure}
+>```
+
+> htbp:**here**,**top**,**bottom**,**float page** （这里，页顶，页底，浮动页）
+
+`\centering`表示插图居中
+
+`\caption`表示设置插图标题
+
+`\label` 需要放在标题命令之后
+
+#### 版面设置
+
+**tips**:carousel_horse:在实际运用的时候需要自己去网络查文档，下面都是概念理解和宏包推荐
+
+##### 页边距
+
+设置页眉页脚，推荐使用`fancyhdr`宏包
+
+:heavy_heart_exclamation:鉴于作者的推荐文档都是英文，这里把作者的示例copy做使用参考
+
+```
+可以在导言区加上如下几行：
+\usepackage{fancyhdr}
+\pagestyle{fancy}
+\lhead{\author}页眉左边写上我的名字
+\chead{\date}中间写上今天的日期
+\rhead{152xxxxxxxx}右边写上我的电话
+\lfoot{}
+\cfoot{\thepage}页脚的正中写上页码
+\rfoot{}
+\renewcommand{\headrulewidth}{0.4pt}页眉和正文之间有一道宽为 0.4pt 的横线分割
+\renewcommand{\headwidth}{\textwidth}
+\renewcommand{\footrulewidth}{0pt}
+```
+
+##### 首行缩进
+
+CTeX宏集解决了首行缩进的问题（即作者推荐的宏包）
+
+##### 行间距
+
+`setspace`宏包提供的命令来调整行间距
+
+```
+注意：行距是字号的1.5倍 和 1.5倍行距 不一样
+
+\usepackage{setspace}
+\onehalfspacing
+在导言这样设置可以将行距设置为字号的1.5倍
+```
+
+##### 段间距
+
+我们可以通过修改长度 `\parskip` 的值来调整段间距
+
+```
+\addtolength{\parskip}{.4em}
+
+表示在原有基础上，增加段间距 0.4em ，如果要缩小距离，只需要将数值改为负值
+```
 
 ### 🧸知识点总结
 
@@ -438,4 +551,37 @@ $$
 
 3. 符号
 
+   ```
+   环境都会有 \begin{}
+             \end{}
+   上下标使用： ^ _
+   根式使用： \sqrt{}
+   分式使用:  \frac{}{}
+   连加：\sum
+   连乘：\prod
+   极限：\lim
+   积分：\int
+   多重积分：\iint,\iiint,\iiiint
+   上下标的压缩：\limits,\nolimits
+   {}:通常用来 输入命令和环境的参数
+   调整括号的大小：\big,\Big,\bigg,\Bigg
+   省略号：\dots用于有序号下标的数列的省略
+          \cdots用于没有序号下标的数列的省略
+          \vdots
+          \ddots
+   矩阵-环境
+   多行公式： 手动换行；//;分段函数使用cases环境
+   不对齐： multline环境（不想要编号，加*）
+   对齐：aligned环境
+   公式组：无需对齐gather环境，对齐align环境
+   \quad是空格
+   \to表示趋近的那个箭头
+   \cdot表示乘法
+   \sin表示正弦函数
+   \infty 表示无穷
+   \pi 表示Π
+   ```
    
+   :herb:初步入门达成！有了概念性理解
+   
+   不过实际运用过程中需要去查正式的文档，已经将作者的归档文件下载：LaTeX——Docs，可以参考本地下载文件

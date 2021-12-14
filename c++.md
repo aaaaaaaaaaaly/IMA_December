@@ -1755,6 +1755,7 @@ public:
 
 class building
 {
+friend class goodguy();
 public:
 	void Building();
 	string sittingroom;
@@ -1798,7 +1799,203 @@ int main()
 
 - 
 
+  
+
 ##### 成员函数做友元
+
+类似的，其他类的成员函数想要访问某一个类中的私有成员，比如此例子中，`goodguy类`中的visit函数想要访问 `Building类`中的私有成员`bedroom` 则需要在`Building类`中  说明  
+
+ `friend goodguy:: visit();`,代表`gooodguy`所属的visit函数是友元
+
+
+
+```c
+# include<iostream>
+# include<string>
+using namespace std;
+
+class Building;
+class goodguy
+{
+public: 
+    goodguy();//构造函数，自动执行一次
+	void visit1();//让visit1函数可以访问Building中的私有成员
+	void visit2();//让visiy2函数不可以访问Building中的私有成员
+	Building* building;//和goodguy()这个构造函数结合相当于，building指向一块Building的空间
+};
+
+class Building
+{
+	//goodguy类下的成员函数想要访问此类中 的私有成员
+friend void goodguy::visit1();
+public:
+	Building();
+public:
+	string sittingroom;
+private:
+	string bedroom;
+};
+Building::Building()
+{
+	sittingroom = "客厅";
+	bedroom = "卧室";
+}
+goodguy::goodguy()
+{
+	building = new Building;//goodguy内部维护着Building* 的指针，在堆区开辟一块空间
+}
+void goodguy:: visit1()//访问函数的内容在类外定义
+{
+	cout << "visit1函数正在访问" << building->sittingroom << endl;
+	cout << "visit1函数正在访问" << building->bedroom << endl;
+}
+void goodguy:: visit2()//访问函数的内容在类外定义
+{
+	cout << "visit2函数正在访问" << building->sittingroom << endl;
+	//cout << "visit2函数正在访问" << building->bedroom << endl;
+}
+void test1()
+{
+	goodguy gg;
+	gg.visit1();
+	gg.visit2();
+}
+int main()
+{
+	test1();
+	system("pause");
+	return 0;
+}
+```
+
+------
+
+
+
+#### 运算符重载:call_me_hand:
+
+
+
+运算符重载概念：对**已有的运算符**重新进行定义，赋予其另一种功能，以适应不同的数据类型
+
+
+
+##### 加号运算符重载
+
+作用：实现 2 个**自定义数据类型**相加的运算
+
+
+
+对于内置的数据类型，编译器知道如何运算
+
+
+
+但是自定义类，比如 人，卧室，等类进行运算，编译器不知道怎么运算，这需要我们进行定义实现
+
+
+
+**通过成员函数实现+号重载：**
+
+![](https://s4.ax1x.com/2021/12/14/ojGDJK.png)
+
+![](https://s4.ax1x.com/2021/12/14/ojGbLj.png)
+
+
+
+**通过全局函数实现+号重载：**
+
+![](https://s4.ax1x.com/2021/12/14/ojJvBd.png)
+
+
+
+**本质：**
+
+成员函数：`person p3 =p1.operator+ (p2)`
+
+全局函数：`person p3 =operator+(p1,p2)`
+
+
+
+**示例：**
+
+```c
+# include<iostream>
+# include<string>
+using namespace std;
+
+//通过成员函数实现重载+号
+
+//全局函数实现重载+号
+class person
+{
+public: 
+	//用成员函数实现重载
+	//person operator+(person& p)
+	//{
+	//	person temp;
+	//	temp.a = this->a + p.a;
+	//	temp.b = this->b + p.b;
+	//	return temp;
+	//}
+	int a;
+	int b;
+};
+
+//通过全局函数实现+号重载
+person operator+ (person& p1, person& p2)
+{
+	person temp;
+	temp.a = p1.a + p2.a;
+	temp.b = p1.b + p2.b;
+	return temp;
+}
+void test1()
+{
+	person p;
+	p.a = 10;
+	p.b = 20;
+	person p2;
+	p2.a = 30;
+	p2.b = 10;
+
+	person p3 = p + p2;//注释掉成员函数，利用全局函数实现这个功能
+	cout << p3.a <<"  " << p3.b << endl;
+}
+int main()
+{
+	test1();
+	system("pause");
+	return 0;
+}
+```
+
+
+
+还有函数重载，比如上例子，`person p3 =p1+10;`会报错，因为`int`和`person`是两种数据类型
+
+
+
+这个时候可以定义一个函数
+
+```c
+person operator+ (person &p1,int nun)
+{
+    person temp;
+    temp->a=p1.a+num;
+    temp->b=p1.b+num;
+    return temp;
+}
+```
+
+**总结**
+
+> 对于内置数据类型的表达式的运算符是不可能改变的
+>
+> 不要滥用运算符重载
+
+
+
+##### 左移运算符的重载
 
 
 

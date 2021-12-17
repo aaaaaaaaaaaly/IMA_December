@@ -1997,5 +1997,1034 @@ person operator+ (person &p1,int nun)
 
 ##### 左移运算符的重载
 
+作用：可以输出自定义数据类型
 
+**代码示例：**
+
+```c
+# include<iostream>
+# include<string>
+using namespace std;
+
+class person
+{
+	friend ostream& operator<<(ostream& cout, person& p);
+public:
+	person(int a, int b)
+	{
+		a = a;
+		b = b;
+	}
+private: 
+	//左移运算符重载
+	//简化形式就是 p<<cout,而我们想要的是 cout<<p,不符合
+	//所以我们一般不会利用成员函数重载<<运算符，因为无法实现 cout 在左侧
+	//void operator<< (cout)
+	int a;
+	int b;
+};
+
+//通过全局函数实现<<号重载
+ostream&  operator<<(ostream &cout, person &p)
+{
+	cout << p.a << " " << p.b << endl;
+	return cout;//则后面的输出流可以无限追加
+}
+void test1()
+{
+	person p(10,10);//初始化的同时，调用构造函数实现对a,b赋初值
+	//p.a = 10;//a,b是私有成员，不能类外赋值，那就可以使用构造函数赋初值
+	//p.b = 20;
+	cout << p << endl; 
+	//返回值为 void 则 endl报错
+	//ostream类型必须是引用类型，所以返回值必须是引用，要把返回值和参数都设置为一种类型
+}
+int main()
+{
+	test1();
+	system("pause");
+	return 0;
+}
+```
+
+
+
+**细节点拨**
+
+
+
+- 要重载<<,只能使用全局函数实现，且如果要访问私有成员，还要利用友元
+
+ ![](https://s4.ax1x.com/2021/12/15/ozDi6A.png)
+
+
+
+- 如果该重载函数返回值类型为void，可以发现，调用的时候不能在后面加`<<endl;`,则需要把返回值类型设置为 `ostream& `,`return cout`
+
+  ,实现无限输出追加
+
+![](https://s4.ax1x.com/2021/12/15/ozD800.png)
+
+
+
+- 私有成员不能在类外部赋值，可以构造函数，让初始化对象的同时对私有成员赋值
+
+![](https://s4.ax1x.com/2021/12/15/ozDghD.png)
+
+
+
+
+
+##### 递增运算符重载
+
+作用：通过重载递增运算符，实现自己的整型数据
+
+
+
+```c
+# include<iostream>
+# include<string>
+using namespace std;
+
+class person
+{
+	friend ostream& operator<<(ostream& cout, person& p);
+	friend ostream& operator<<(ostream& cout, person p);
+public:
+	person()
+	{
+		a = 0;
+	}
+	//前置++一定做引用返回
+	person& operator++()//返回的是一个引用，因为如果不是引用，++a之后a的值也被赋值为a+1，而不是原来的数字
+	{//返回引用是为了一直第一个数据进行递增操作比如，++（++a）
+		a++;
+		return *this;//需要对自身做一个返回
+	}
+	//后置++一定做值返回
+	person operator++(int)
+		//int代表占位参数，可以用于区分前置后置递增
+	{
+		//先记录当前结果
+		person temp = *this;
+		//后递增
+		a++;
+		//最后记录结果做返回
+		return temp;
+	}
+	person(int A)
+	{
+		a = A;
+	}
+private: 
+	//重载递增运算符
+	int a;
+};
+ostream& operator<<(ostream& cout, person& p)
+{
+	cout << p.a;
+	return cout;
+}
+ostream& operator<<(ostream& cout, person p)
+{
+	cout << p.a;
+	return cout;# include<iostream>
+# include<string>
+using namespace std;
+
+class person
+{
+	//friend ostream& operator<<(ostream& cout, person& p);
+	friend ostream& operator<<(ostream& cout, person p);
+public:
+	person()
+	{
+		a = 0;
+	}
+	//前置++一定做引用返回
+	person& operator++()//返回的是一个引用，因为如果不是引用，++a之后a的值也被赋值为a+1，而不是原来的数字
+	{//返回引用是为了一直第一个数据进行递增操作比如，++（++a）
+		a++;
+		return *this;//需要对自身做一个返回
+	}
+	//后置++一定做值返回
+	person operator++(int)
+		//int代表占位参数，可以用于区分前置后置递增
+	{
+		//先记录当前结果
+		person temp = *this;
+		//后递增
+		a++;
+		//最后记录结果做返回
+		return temp;
+	}
+	person(int A)
+	{
+		a = A;
+	}
+private: 
+	//重载递增运算符
+	int a;
+};
+ostream& operator<<(ostream& cout, person& p)
+{
+	cout << p.a;
+	return cout;
+}
+ostream& operator<<(ostream& cout, person p)
+{
+	cout << p.a;
+	return cout;
+}
+void test1()
+{
+	person p(20);
+	//cout << p++ ;
+	cout <<++p << endl;
+	cout << p++ << endl;
+	cout << p << endl;
+}
+int main()
+{
+	test1();
+	system("pause");
+	return 0;
+}
+}
+void test1()
+{
+	person p(20);
+	//cout << p++ ;
+	cout << p++ << endl;
+	cout << ++p << endl;
+}
+int main()
+{
+	test1();
+	system("pause");
+	return 0;
+}
+```
+
+
+
+- 发现：越到后面，与前面的关联更大，递增运算符重载之前，需要左移运算符重载
+
+![](https://s6.jpg.cm/2021/12/15/LVfNdh.png)
+
+需要重新再定义一个左移运算符，但是实践出现，返回值不为`ostream&`，无法在后置++后无限输出流。
+
+
+
+- 解决，实际上，在重载<<的时候，第二个参数就是需要++的那个数的返回值类型，前置++第二个参数返回引用；后置++第二个参数返回值；
+
+- 不过有新的问题，同时定义多个重载类型会报错:woman_playing_handball:
+
+
+
+##### 赋值运算符重载
+
+c++编译器至少给一个类添加4个函数
+
+1. 默认构造函数（无参，函数体为空）
+
+2. 默认构析函数（无参，函数体为空）
+
+3. 默认拷贝函数，对属性进行值拷贝
+
+4. 赋值运算符 operator=，对属性进行值拷贝
+
+   
+
+   
+
+   （小烦，这里有太多细节，感觉插在这里不好，我先把基础的嚼完再回来，等我~）
+
+   ------
+
+
+
+#### 继承
+
+##### 基础语法
+
+继承是面向对象三大特性之一
+
+定义类的时候，下级别的成员除了有上一级的共性，还有自己的 特性
+
+**好处**：减少重复代码
+
+**语法****：class 子类：public 父类 {   }**
+
+子类又叫派生类，父类又叫基类
+
+
+
+```c
+# include<iostream>
+# include<string>
+using namespace std;
+
+class basepage
+{
+public:
+	void header()
+	{
+		cout << "首页" << endl;
+	}
+	void footer()
+	{
+		cout << "帮助中心" << endl;
+	}
+	void content()
+	{
+		cout << "ja" << endl;
+	}
+};
+//java
+class java :public basepage//公共部分的继承
+{
+	void content()
+	{
+		cout << "java" << endl;
+	}
+};
+//python
+class python :public basepage
+{
+	void content()
+	{
+		cout << "python" << endl;
+	}
+};
+int main()
+{
+	system("pause");
+	return 0;
+}
+```
+
+
+
+##### 继承方式
+
+继承语法：`class子类 ： 继承方式 父类 `
+
+继承方式有3种：
+
+- 公共继承
+- 保护继承
+- 私有继承
+
+
+
+class a :**public** base
+
+- 私有成员不可访问，公共成员和保护成员依旧分别为公共成员和保护成员
+
+
+
+class b :**protected** base
+
+- 私有成员不可访问，公共成员和保护成员都变成保护成员、
+
+
+
+class c : **private** base
+
+- 私有成员都 变成私有成员
+
+
+
+
+
+##### 继承中的对象模型
+
+**问题**：从父类继承过来的成员，哪些属于子类对象？
+
+
+
+在父类中所有**非静态成员属性**都会被子类继承下去，
+
+- 比如包括父类中的三种属性对应的三个变量int a，int b ，int c，子类中有一个int d，则子类一共开辟的空间为`4*sizeof（int）`=16
+
+
+
+- 父类中私有成员属性 是被编译器隐藏了，因此访问不到，但是确实被继承下去了
+
+
+
+```c
+# include<iostream>
+# include<string>
+using namespace std;
+//继承中的对象模型
+class base
+{
+public:
+	int a;
+protected:
+	int b;
+private:
+	int c;
+};
+class son :public base//公共部分的继承
+{
+public:
+	int d;
+};
+//python
+void test()
+{
+	cout << sizeof(son) << endl;
+	//在父类中所有非静态成员属性都会被子类继承下去
+	//父类中私有成员属性 是被编译器隐藏了，因此访问不到，但是确实被继承下去了
+}
+int main()
+{
+	test();
+	system("pause");
+	return 0;
+}
+```
+
+
+
+##### 继承中构造和构析顺序
+
+
+
+子类继承父类后，当创建子类对象，也会调用父类的构造函数
+
+
+
+**问题：**父类和子类的构造和构析函数 是谁先谁后？
+
+结论：继承中的构造和析构的顺序，先构造父类再构造子类，先析构儿子，再析构父亲
+
+
+
+```c
+# include<iostream>
+# include<string>
+using namespace std;
+//继承中的构造和析构的顺序
+class base
+{
+public:
+	base()
+	{
+		cout << "base的构造函数" << endl;
+	}
+	~base()
+	{
+		cout << "base的析构函数" << endl;
+	}
+};
+class son :public base//公共部分的继承
+{
+public:
+	son()
+	{
+		cout << "son的构造函数" << endl;
+	}
+	~son()
+	{
+		cout << "son的构析函数" << endl;
+	}
+};
+void test()
+{
+	son s;
+}
+int main()
+{
+	test();
+	system("pause");
+	return 0;
+}
+```
+
+
+
+![](../Snipaste_2021-12-16_08-43-00.png)
+
+
+
+##### 继承同名成员处理方法
+
+问题：当父类与子类中出现同名的成员，如何通过子类对象，访问到子类或父类中同名的数据呢
+
+
+
+- 访问子类同名成员，直接访问即可
+- 访问父类同名成员，需要加作用域
+
+
+
+如果子类中出现和父类同名的成员函数，父类中的同名函数会被隐藏掉，要想访问**必须加作用域**
+
+```c
+# include<iostream>
+# include<string>
+using namespace std;
+//继承中同名成员的处理方法
+class base
+{
+public:
+	int a;
+	base()
+	{
+		a = 100;
+	}
+	void func()
+	{
+		cout << "base" << endl;
+	}
+};
+class son :public base//公共部分的继承
+{
+public:
+	int a;//和父类的成员同名
+	son()
+	{
+		a = 200;
+	}
+	void func()
+	{
+		cout << "son" << endl;
+	}
+};
+//如果子类中出现和父类同名的成员函数，父类中的同名函数会被系统隐藏掉，要想访问必须加作用域
+void test()
+{
+	son s;
+	//同名成员属性的处理方式
+	cout << s.a << endl;//访问子类自身直接访问
+	cout << s.base::a << endl;//在同名成员属性前，加上父类作用域，就是访问父类的成员
+	//同名成员函数的处理方式
+	 s.func();
+	 s.base::func();
+}
+int main()
+{
+	test();
+	system("pause");
+	return 0;
+}
+```
+
+
+
+##### 继承中同名静态成员的处理方法
+
+问题：继承中同名的静态成员在子类对象上如何进行访问？
+
+
+
+静态成员和非静态成员出现同名，处理方式一致
+
+
+
+- 访问子类同名成员，直接访问即可
+- 访问**父类同名成员，需要加作用域**
+
+
+
+```c
+# include<iostream>
+# include<string>
+using namespace std;
+//继承中同名静态成员的处理方法
+
+class base
+{
+public:
+	static int a;//静态成员，类内声明，类外赋值
+};
+int base::a = 100;//类外声明
+
+
+class son :public base//公共部分的继承
+{
+public:
+	static int a;
+};
+int son::a = 200;//类外声明
+
+
+void test()
+{
+	//访问静态成员的两种方式，通过对象访问
+	son s;
+	cout << s.a << endl;//访问子类自身直接访问
+	cout << s.base::a << endl;//在同名成员属性前，加上父类作用域，就是访问父类的成员
+
+	//通过类名访问
+	cout << son::a << endl;
+	cout << base::a << endl;
+	//上面2种代表通过类名的方式来访问
+	cout << son::base::a << endl;
+	//以上两个双冒号，代表访问父类作用域下
+}
+//同名的静态函数也是如此
+int main()
+{
+	test();
+	system("pause");
+	return 0;
+}
+```
+
+
+
+##### 多继承语法
+
+
+
+c++允许一个类继承多个类
+
+
+
+语法：`class 子类 : 继承方式 父类1，继承方式 父类2...`
+
+
+
+多继承可能引发父类中有同名成员出现，需要**加作用域区分**
+
+
+
+c++实际开发中**不建议**使用多继承
+
+```c
+# include<iostream>
+# include<string>
+using namespace std;
+//继承中多继承语法
+
+class base1
+{
+public:
+	base1()
+	{
+		a = 10;
+	}
+	int a;
+
+};
+class base2
+{
+public:
+	base2()
+	{
+		a = 60;
+	}
+	int a;
+
+};
+
+class son :public base1, public base2//公共部分的继承
+{
+public:
+	son()
+	{
+			c = 30;
+			d = 40;
+}
+	int c;
+	int d;
+};
+
+
+
+void test()
+{
+	son s;
+	cout << sizeof(s) << endl;
+	cout <<s.base1::a << endl;
+	cout << s.base2::a << endl;
+}
+int main()
+{
+	test();
+	system("pause");
+	return 0;
+}
+```
+
+
+
+##### 菱形继承
+
+菱形继承**概念：**
+
+- 两个派生类（子类）继承一个基类（父类）
+- 又有某个类同时继承两个派生类
+- 这种继承方式被称为菱形继承，或者钻石继承
+
+
+
+典型的菱形继承**案例：**
+
+​              羊     
+
+动物->             ->羊驼
+
+​            骆驼
+
+菱形继承的问题：
+
+1. 羊继承了动物的数据，骆驼同样继承了动物的数据，当羊驼使用数据的时候，就会产生**二义性**
+2. 羊驼继承来自动物的数据继承了2份，但是事实上继承1份就行
+
+**解决方法**：使用虚继承，即在子类继承的public前加 virtual--->
+
+`class son :virtual public father`
+
+
+
+```c++
+# include<iostream>
+# include<string>
+using namespace std;
+class animal {
+public:
+	int age;
+
+};
+//利用虚继承可以解决菱形继承的问题
+//继承之前加上 关键字 virtual 变为虚继承，animal变为虚基类
+//数据变为一份，因为内部有一个vbptr指针，指向vbtable
+class sheep :virtual public animal
+{
+public:
+	int a;
+
+};
+class tuo:virtual public animal
+{
+public:
+	int a;
+
+};
+
+class sheeptuo :public sheep, public tuo//公共部分的继承
+{
+public:
+	int d;
+};
+```
+
+------
+
+
+
+#### 多态
+
+##### 基础
+
+**多态分为2类**
+
+- 静态多态：函数重载和运算符重载属于静态多态，复用函数名
+- 动态多态：派生类和虚函数实现运行时多态
+
+
+
+**静态多态和动态多态区别：**
+
+- 静态多态的函数地址早绑定，编译阶段确定函数地址
+- 动态多态的函数地址晚绑定，运行阶段确定函数地址
+
+
+
+
+
+**动态多态的满足条件：**
+
+1. 有继承关系
+2. 子类要**重写**（返回值类型，函数名，形参列表中所有内容都相同）父类的**虚函数**（父类改同名函数定义前加virtual）
+
+
+
+**动态多态的使用：**
+
+父类的指针或者引用 指向子类对象
+
+`dospeak(animal & animal)`-----> `dospeak(cat)`
+
+(指针指向子类对象)
+
+**案例：**
+
+- 当父类子类中有同名函数
+
+```c++
+# include<iostream>
+# include<string>
+using namespace std;
+class animal {
+public:
+	void speak()
+	{
+		cout << "动物在说话" << endl;
+	}
+};
+
+class cat : public animal
+{
+public:
+	void speak()
+	{
+		cout << "小猫在说话" << endl;
+	}
+
+};
+class tuo:virtual public animal
+{
+public:
+	int a;
+
+};
+
+void dospeak(animal &animal)//animal&animal =cat
+{
+	animal.speak();
+}
+void test()
+{
+	cat ca;
+	ca.speak();//函数调用
+	
+}
+int main()
+{
+	cat ca;
+	dospeak(ca);
+	system("pause");
+	return 0;
+}
+```
+
+
+
+如果初始化子类，引用子类调用同名函数，结果输出父类的函数内容
+
+原因是：地址早绑定，在**编译阶段**就确定了函数地址
+
+
+
+- 如果想要执行子类的函数内容，那么就不能让这个地址早绑定，在**运行阶段**进行绑定，地址晚绑。
+
+- 方法：在父类中对该同名函数定义数据类型前，加virtual
+
+​            `virtual void speak()`
+
+```c++
+# include<iostream>
+# include<string>
+using namespace std;
+class animal {
+public:
+	virtual void speak()
+	{
+		cout << "动物在说话" << endl;
+	}
+};
+
+class cat : public animal
+{
+public:
+	void speak()
+	{
+		cout << "小猫在说话" << endl;
+	}
+
+};
+class tuo:virtual public animal
+{
+public:
+	int a;
+
+};
+
+void dospeak(animal &animal)//animal&animal =cat
+{
+	animal.speak();
+}
+void test()
+{
+	cat ca;
+	ca.speak();//函数调用
+	
+}
+int main()
+{
+	cat ca;
+	dospeak(ca);
+	system("pause");
+	return 0;
+}
+```
+
+
+
+##### 多态的基本概念
+
+（基本知识在画图工具，等一下重新看一遍做笔记）
+
+在父类该同名函数前加 virtual 就使得 `vbftr`指向的`vbtable`被子类的函数指针覆盖
+
+（**开发人员命令提示符）**
+
+
+
+##### 多态案例---计算器类
+
+案例描述：
+
+分别利用普通写法和多态技术，设计实现两个操作进行运行的计算器类
+
+
+
+多态的优点：
+
+- 代码组织结构清晰
+- 可读性强
+- 利用前期和后期扩展加以维护
+
+
+
+案例：
+
+- 传统写法
+
+```c++
+# include<iostream>
+# include<string>
+using namespace std;
+//用普通写法和多态实现计算器
+class calculator {
+public:
+	int sum(string oper)
+	{
+		if (oper == "+")
+		{
+			return num1 + num2;
+		}
+
+		else if (oper == "-")
+		{
+			return num1 - num2;
+		}
+		else if (oper == "*")
+		{
+			return num1 *num2;
+		}
+		
+	}
+	int num1;
+	int num2;
+};
+void test()
+{
+//创建一个计算器的对象
+	calculator c;
+	c.num1 = 10;
+	c.num2 = 10;
+	cout << c.sum("+") << endl;
+	
+}
+int main()
+{
+	test();
+	system("pause");
+	return 0;
+}
+```
+
+- 如果要拓展新的功能，需要修改源码
+
+- 在实际开发中 提倡 **开闭原则**
+
+- 开闭原则：对扩展进行开发，对修改进行关闭
+
+
+
+
+
+- 多态写法
+
+```c+=
+# include<iostream>
+# include<string>
+using namespace std;
+//利用多态实现计算器
+
+//实现计算器的抽象类
+
+class abstractcalculator
+{
+public:
+	virtual int getresult()//子类重写父类虚函数
+	{
+		return 0;
+	}
+	int num1;
+	int num2;
+};
+
+class addcalculator : public abstractcalculator
+{
+public:
+	int getresult()
+	{
+		return num1 + num2;
+	}
+};
+
+class subcalculator : public abstractcalculator
+{
+public:
+	int getresult()
+	{
+		return num1 - num2;
+	}
+};
+
+
+class mulcalculator : public abstractcalculator
+{
+public:
+	int getresult()
+	{
+		return num1 * num2;
+	}
+};
+void test()
+{
+	//多态使用条件：
+	//父类指针或者引用指向子类对象
+
+	//加法运算
+	abstractcalculator* c = new addcalculator;//开辟空间，让父类指针指向子类对象，创建在堆区
+	c->num1 = 10;
+	c->num2 = 10;
+	//c指向的是加法类
+	cout << c->getresult() << endl;
+	
+	delete c;//堆区数据要手动释放
+
+	c = new subcalculator;
+	cout << c->getresult() << endl;
+
+	delete c;
+}
+
+int main()
+{
+	test();
+	system("pause");
+	return 0;
+}
+```
 

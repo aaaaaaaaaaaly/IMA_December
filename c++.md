@@ -2878,7 +2878,7 @@ int main()
 
 
 
-##### 多态案例---计算器类
+##### 多态案例1---计算器类
 
 案例描述：
 
@@ -3027,4 +3027,883 @@ int main()
 	return 0;
 }
 ```
+
+
+
+##### 纯虚函数和抽象类
+
+
+
+在多态中，通常父类中的虚构函数的实现是毫无意义的，主要都是**调用子类重写**的内容
+
+
+
+因此可以将虚函数改为纯虚函数
+
+
+
+**纯虚函数的语法：**`virtual 返回值类型 函数名 （参数列表） =0;`（就是在虚函数的基础上写 =0；）
+
+ 
+
+当类中有了纯虚函数，这个类也称为**抽象类**
+
+
+
+抽象类特点：
+
+- 无法实例化对象
+- **子类**必须**重写抽象类中的纯虚函数**，否则也属于抽象类
+
+
+
+多态的**使用条件**是父类的指针或者引用指向子类的对象
+
+
+
+```c++
+# include<iostream>
+# include<string>
+using namespace std;
+class base
+{
+public:
+	//纯虚函数
+	//只要有一个纯虚函数，这个类称为抽象类
+	//抽象类特点：
+	//1,无法实例化对象
+	//抽象类的子类，必须要重写父类中的虚函数，否则也属于抽象类
+	virtual void func() = 0;
+};
+
+class son :public base
+{
+	//重写父类中的虚函数
+public:
+	virtual void func()
+	{
+		cout << "func" << endl;
+	}
+};
+void test()
+{
+	son s;
+	//多态的使用条件是，父类的指针后引用指向子类对象
+	base* ba = new son;
+	ba->func();
+}
+
+int main()
+{
+	test();
+	system("pause");
+	return 0;
+}
+```
+
+![](https://s6.jpg.cm/2021/12/17/LAS1GS.png)
+
+
+
+##### 多态案例2--制作饮品
+
+制作饮品的大致流程为：煮水->冲泡->导入杯中->加入辅料
+
+
+
+利用**多态技术实现**本案例，提供**抽象制作饮品基类**，提供制作咖啡和茶叶
+
+```c++
+# include<iostream>
+# include<string>
+using namespace std;
+//多态案例2 制作饮品
+class abstractdrinking
+{
+public:
+	//煮水
+	virtual void boil() = 0;
+
+	//冲泡
+	virtual void brew() = 0;
+
+	//倒入杯中
+	virtual void pour() = 0;
+
+	//倒入其他
+	virtual void otherthing() = 0;
+
+	void makedrink()
+	{
+		boil();
+		brew();
+		pour();
+		otherthing();
+	}
+};
+
+class son :public abstractdrinking
+{
+
+	virtual void boil()
+	{
+		cout << "1" << endl;
+	}
+	virtual void brew()
+	{
+		cout << "2" << endl;
+	}
+	virtual void pour()
+	{
+		cout << "3" << endl;
+	}
+	virtual void otherthing()
+	{
+		cout << "4" << endl;
+	}
+};
+//制作茶叶
+class tea :public abstractdrinking
+{
+	virtual void boil()
+	{
+		cout << "5" << endl;
+	}
+	virtual void brew()
+	{
+		cout << "6" << endl;
+	}
+	virtual void pour()
+	{
+		cout << "7" << endl;
+	}
+	virtual void otherthing()
+	{
+		cout << "8" << endl;
+	}
+};
+
+void dowork(abstractdrinking* a)
+{
+	a->makedrink();
+	delete a;
+}
+void test()
+{
+	dowork(new tea);//这里的tea是子类的类型说明
+}
+int main()
+{
+	test();
+	system("pause");
+	return 0;
+}
+```
+
+
+
+
+
+
+
+##### 虚析构和纯虚析构
+
+
+
+多态使用时，如果子类中**有属性开辟到堆区**，那么父类指针在释放时无法调用子类中的析构代码
+
+
+
+解决方法：将父类中的析构函数改为虚析构或者纯虚析构
+
+
+
+虚析构和纯虚析构共性:
+
+- 可以解决父类指针释放子类对象
+- 都需要有具体的函数实现
+
+虚析构和纯虚析构的区别：
+
+- 如果是纯虚析构，该类属于抽象类，无法实例化对象
+
+
+
+
+
+虚析构语法：
+
+`virtual ~类名() {}`
+
+纯虚析构语法:
+
+`virtual ~类名 ()=0`
+
+
+
+```c++
+# include<iostream>
+# include<string>
+using namespace std;
+//多态案例2 制作饮品
+class animal
+{
+public:
+	animal()
+	{
+		cout << "animal的构造函数调用" << endl;
+	}
+	~animal()
+	{
+		cout << "animal的析构函数调用" << endl;
+	}
+	virtual void speak() = 0;//纯虚函数
+};
+
+class cat:public animal
+{
+public:
+	cat(string Name)
+	{
+		cout << "cat的构造函数调用" << endl;
+		name = new string(Name);//让指针指向堆区
+	}
+	string* name;//让它指向堆区
+
+
+
+	virtual void speak()
+	{
+		cout << "catttter" << endl;
+	}
+	~cat()//析构函数内清空内存
+	{
+		cout << "cat的析构函数调用" << endl;
+		delete name;
+		name = NULL; //置空是为了避免野指针
+	}
+};
+
+void test()
+{
+	animal* an = new cat ("an");
+	an->speak();
+	delete an;
+    //delete 父类的指针，不会走子类的析构代码
+}
+int main()
+{
+	test();
+	system("pause");
+	return 0;
+}
+```
+
+
+
+以上例子**子类的析构函数没有被调用**
+
+![](https://s4.ax1x.com/2021/12/17/TAFiOH.png)
+
+
+
+说明没有走到 `~cat()` 内的代码，即cat析构函数内部的释放没有完成，会造成内存泄漏
+
+
+
+- 原因： delete 父类的指针，不会走子类的析构函数
+
+- 子类除了有自己的析构还有继承的析构，用父类指针默认调用父类的析构
+
+
+
+利用**虚析构**可以解决这个问题
+
+
+
+```c++
+# include<iostream>
+# include<string>
+using namespace std;
+//多态案例2 制作饮品
+class animal
+{
+public:
+	animal()
+	{
+		cout << "animal的构造函数调用" << endl;
+	}
+	virtual ~animal() = 0;//纯虚析构函数，到外部实现，这是声明
+	
+	virtual void speak() = 0;//纯虚函数
+};
+animal::~animal()//表明是animal下面的纯虚析构函数声明
+{
+	cout << "animal的析构函数调用" << endl;
+}
+//有了纯虚析构之后，这个类也属于抽象类，无法实例化对象
+class cat:public animal
+{
+public:
+	cat(string Name)
+	{
+		cout << "cat的构造函数调用" << endl;
+		name = new string(Name);//让指针指向堆区
+	}
+	string* name;//让它指向堆区
+
+
+
+	virtual void speak()
+	{
+		cout << "catttter" << endl;
+	}
+	~cat()//析构函数内清空内存
+	{
+		cout << "cat的析构函数调用" << endl;
+		delete name;
+		name = NULL; //置空是为了避免野指针
+	}
+};
+
+void test()
+{
+	animal* an = new cat ("an");
+	an->speak();
+	delete an;
+}
+int main()
+{
+	test();
+	system("pause");
+	return 0;
+}
+```
+
+
+
+- 总结：
+
+1. 虚析构或者纯虚析构就是用来解决**通过父类指针释放对象**
+2. 如果子类中没有堆区数据，可以不写虚析构或纯虚析构
+3. 拥有纯虚析构函数的类也属于抽象类
+
+
+
+
+
+##### 多态案例3--电脑组装
+
+
+
+案例描述：
+
+![](https://s4.ax1x.com/2021/12/19/TZ8hgU.png)
+
+
+
+- 基本的类，比如每一台电脑都需要的零件 `cpu `，显卡，内存条等用虚构函数写，之后调用
+- 同时复习上节课知识：子类要释放在堆区开辟的空间，需要通过父类的构析函数对其进行释放
+- 类的定义和开辟空间，释放空间都需要手动
+
+```c++
+# include<iostream>
+# include<string>
+using namespace std;
+//抽象不同零件的类
+//抽象cpu类
+class cpu
+{
+public:
+	//抽象的计算函数
+	virtual void calculate() = 0;
+
+};
+//抽象显卡类
+class videocard
+{
+public:
+	//抽象的计算函数
+	virtual void display() = 0;
+
+};
+//抽象存储类
+class memory
+{
+public:
+	//抽象的存储函数
+	virtual void storage() = 0;
+
+};
+
+//电脑类
+class computer
+{
+public:
+	computer(cpu* cpu, videocard* v, memory* mem)
+	{
+		cp = cpu;
+		vc = v;
+		me = mem;
+	}
+	void work()
+	{
+		//让零件工作起来，调用接口
+		cp->calculate();
+		vc->display();
+		me->storage();
+	}
+	~computer()
+	{
+		delete cp;
+		cp = NULL;
+		delete vc;
+		vc = NULL;
+		delete me;
+		me = NULL;
+	}
+private:
+	cpu* cp;//cpu的零件指针
+	videocard* vc; //显卡零件指针
+	memory* me;//内存条零件指针
+};
+
+//具体厂商
+class intelcpu :public cpu
+{
+public:
+	virtual void calculate()
+	{
+		cout << "intel的cpu" << endl;
+	}
+};
+class intelvideocard :public videocard
+{
+public:
+	virtual void display()
+	{
+		cout << "intel的videocard" << endl;
+	}
+};
+class intelmem :public memory
+{
+public:
+	virtual void storage()
+	{
+		cout << "intel的memory" << endl;
+	}
+};
+
+
+class lenovolcpu :public cpu
+{
+public:
+	virtual void calculate()
+	{
+		cout << "lenovo的cpu" << endl;
+	}
+};
+class lenovovideocard :public videocard
+{
+public:
+	virtual void display()
+	{
+		cout << "lenovo的videocard" << endl;
+	}
+};
+class lenovomem :public memory
+{
+public:
+	virtual void storage()
+	{
+		cout << "lenovo的memory" << endl;
+	}
+};
+
+void test()
+{
+	//第一台电脑的零件
+	cpu* incpu = new intelcpu;//父类cpu的指针指向堆区开辟的子类
+	videocard* incard = new intelvideocard;
+	memory* memory = new intelmem;
+	//创建第一台电脑
+	computer* com = new computer(incpu, incard, memory);
+	com->work();
+	delete com;
+	//在父类的析构函数中释放子类开辟的堆区空间（此处是电脑零件）
+
+	//创建第二台电脑
+	computer* com2 = new computer(new lenovolcpu, new lenovovideocard, new lenovomem);
+	com2->work();
+	delete com2;
+}
+
+int main()
+{
+	test();
+	system("pause");
+	return 0;
+}
+```
+
+------
+
+
+
+## 文件操作
+
+程序运行时产生的数据都属于临时数据，程序一旦运行结束就会被释放
+
+通过文件可以将**数据持久化**
+
+c++中对文件操作需要包含**头文件 <fstream>**
+
+
+
+
+
+文件类型分为两种：
+
+- 文本文件： 文件以文本的 **ASCII码**形式存储在计算机中
+- 二进制文件：文件以文本的**二进制**形式存储在计算机中，用户一般不能直接读懂它们
+
+
+
+操作文件的三大类：
+
+1. `ofstream`:写操作
+2. `ifstream`:读操作
+3. `fstream`:读写操作
+
+
+
+### 文本文件
+
+#### 写文件
+
+ **步骤：**
+
+1. 包含头文件   `#include< fstream>`
+2. 创建流对象` ofstream ofs;`
+3. 打开文件`ofs.open`("文件路径"，打开方式)
+4. 写数据`ofs<<"写入的数据"`
+5. 关闭文件`ofs.close();`
+
+
+
+**文件打开方式**
+
+| 打开方式      | 解释                       |
+| :------------ | -------------------------- |
+| `ios::in`     | 为读文件而打开文件         |
+| `ios::out`    | 为写文件而打开文件         |
+| `ios::ate`    | 初始位置：文件尾           |
+| `ios::app`    | 追加方式写文件             |
+| `ios::trunc`  | 如果文件存在先删除，再创建 |
+| `ios::binary` | 二进制方式                 |
+
+
+
+**注意**：文件打开方式可以配合使用，利用 | 操作符
+
+**例如：**：用二进制方式写文件 
+
+`ios::binary  | ios::out`
+
+
+
+```c++
+# include<iostream>
+# include<string>
+# include <fstream>
+using namespace std;
+//文本文件 写文件
+void test()
+{
+	//1，包含头文件 fstream
+	//2,创建一个流对象
+	ofstream ofs;
+	//3，指定打开方式
+	ofs.open("test.txt", ios::out);
+
+	//4，写内容
+	ofs << "姓名：张三" << endl;
+	ofs << "性别：男" << endl;
+	ofs << "年龄：18" << endl;
+
+	//5，关闭文件
+	ofs.close();
+}
+
+int main()
+{
+	test();
+	system("pause");
+	return 0;
+}
+```
+
+
+
+- 打开文件提示
+
+![](https://s4.ax1x.com/2021/12/19/TZDP9H.png)
+
+- 创建在代码文件的路径下
+
+![](https://s4.ax1x.com/2021/12/19/TZslmq.png)
+
+- **总结：**
+
+1. 文件操作必须包含头文件` fstream`
+2. 读文件可以利用`ofstream`,或者`fstream`类
+3. 打开文件时候需要指定操作文件的路径，以及打开方式
+4. 利用`<<`可以向文件中写数据
+5. 操作完毕，要关闭文件
+
+
+
+#### 读文件
+
+读文件和写文件步骤类似，但是读取方式相对于比较多
+
+
+
+读文件步骤如下：
+
+1. 包含头文件  `#include<fstream>`
+2. 创建流对象`ifstream ifs;`
+3. 打开文件并判断文件是否成功打开` ifs.open("文件路径"，打开方式)`
+4. 读数据‘ 四种方式读取
+5. 关闭文件`ifs.close();`
+
+
+
+**示例：**
+
+```c++
+# include<iostream>
+# include<string>
+# include <fstream>
+using namespace std;
+//文本文件 读文件
+void test()
+{
+	//1，包含头文件 fstream
+	//2,创建一个流对象
+	ifstream ifs;
+	//3，指定文件并且判断是否成功打开
+	ifs.open("test.txt", ios::in);
+	if (!ifs.is_open())
+	{
+		cout << "文件打开失败了" << endl;
+		return;
+	}
+	//4，读数据
+	//第一种
+	//char buf[1024] = { 0 };
+	//while (ifs>>buf)//读到头就会返回0
+	//{
+	//	cout << buf << endl;
+//}
+	
+	//第二种
+	//while (ifs.getline(buf, sizeof(buf)))//geiine的参数有2个，一个是文件，一个是文件大小
+	//{
+	//	cout << buf<< endl;
+	//}
+
+	//第三种
+	//string buf;
+	//while (getline(ifs, buf))//参数有2个，输出流和文件
+	//{
+	//	cout << buf << endl;
+	//	
+	//}
+	
+	//第四种
+	char c;
+	while ((c = ifs.get()) != EOF)//get每一次只读一个字符
+	{
+		cout << c ;
+	}
+	//5，关闭文件
+	ifs.close();
+}
+
+int main()
+{
+	test();
+	system("pause");
+	return 0;
+}
+```
+
+
+
+**总结：**
+
+- 读文件可以利用 `ifstream`，或者` fstream`
+- 利用`is_open`函数可以判断文件是否打开成功
+- `close`关闭文件
+- 四种打开方式
+
+| char `buf` [1024]={0} | while(ifs>>`buf`){}                   |
+| --------------------- | ------------------------------------- |
+| char `buf`[1024]={0}  | `while(ifs.getline(buf,sizeof(buf)))` |
+| string `buf`          | `while(getline(ifs,buf))`             |
+| char c                | `while((c=ifs.get())!=EOF)`           |
+
+
+
+### 二进制文件
+
+以二进制的方式对文件进行读写操作
+
+打开方式要指定为 `ios::binary`
+
+
+
+可以操作不单单是内置的数据类型，还有结构体，类等其他自定义的数据类型
+
+
+
+#### 写文件
+
+二进制方式写文件主要利用流对象调用 **成员函数write**
+
+函数原型：
+
+`ostream& write(const char *buffer ,int len);`
+
+参数解释：
+
+字符指针buffer指向内存中一段存储空间，`len`是读写的字节数
+
+
+
+示例：
+
+```c++
+# include<iostream>
+# include<string>
+# include <fstream>
+using namespace std;
+//二进制文件 写文件
+class person
+{
+public:
+	char name[64];//string本身是一个类，尽量不要读取自定义的类型中有string，会吧类写进去
+	//char是c语言的字符串
+	int age;
+
+};
+void test()
+{
+	//1,包含头文件
+	//2，创建流对象
+	ofstream ofs;
+	//3,打开文件
+	ofs.open("person.tex", ios::out | ios::binary);
+	//4,写文件
+	person p = { "ahelly",20 };
+	ofs.write((const char*)&p, sizeof(person));
+	//5,关闭文件
+}
+
+int main()
+{
+	test();
+	system("pause");
+	return 0;
+}
+```
+
+
+
+#### 读文件
+
+二进制读文件主要利用流对象调用成员函数 read
+
+函数原型:`istream& read(char* buffer,int len);`
+
+参数解释：字符指针buffer指向内存中一块存储空间，len是读写的字节数
+
+
+
+示例：
+
+```c++
+# include<iostream>
+# include<string>
+# include <fstream>
+using namespace std;
+//二进制文件 读文件
+class person
+{
+public:
+	char name[64];//string本身是一个类，尽量不要读取自定义的类型中有string，会吧类写进去
+	//char是c语言的字符串
+	int age;
+
+};
+void test()
+{
+	//1,包含头文件
+	//2，创建流对象
+	ifstream ifs;
+	//3,打开文件，判断文件是否打开成功
+	ifs.open("person.tex", ios::in | ios::binary);
+	if (!ifs.is_open())
+	{
+		cout << "打开文件失败" << endl;
+		return;
+	}
+
+	//4,读 文件
+	person p = { "ahelly",20 };
+	ifs.read(( char*)&p, sizeof(person));//强转
+	cout << p.name << endl << p.age << endl;
+
+	//5,关闭文件
+	ifs.close();
+}
+
+int main()
+{
+	test();
+	system("pause");
+	return 0;
+}
+```
+
+
+
+### 总结
+
+![](https://s3.bmp.ovh/imgs/2021/12/711b8b1a5e6412d3.png)
+
+流对象的创建都是 `ofstream ofs;`
+
+打开文件，二进制需要强调`ios::binary`
+
+写文件，二进制使用 write()函数，文本直接`ofs`<<
+
+
+
+![](https://s3.bmp.ovh/imgs/2021/12/7c619ac46fc4e28d.png)
+
+- 流对象创建都是` ifstream ifs;`
+
+- 打开文件的同时都要判断是否打开成功
+
+打开文件：`ifs.open("路径"，打开方式)`
+
+判断:`if(!ifs.is_open())`
+
+- 读文件
+
+文本文件有四种方式读文件 
+
+二进制文件使用到 read() 函数
 
